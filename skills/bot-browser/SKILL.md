@@ -52,6 +52,27 @@ Run `agent-desktop skills get desktop` once per session for the loop and retry
 rules. Headless by default; use `--headed` only if Francisco allows physical
 input.
 
+## Downloads
+
+- To a chosen folder: `agent-browser --session bot download <sel|@ref> <path>`.
+  Works for ChatGPT images (open the image viewer, then its "Download" button).
+- Gotcha: after one `download`, **every** download in that CDP session goes to
+  that folder with a GUID name, even plain clicks. `agent-browser --session bot
+  close` resets it, and downloads go back to `~/Downloads`.
+- A human-style click with agent-desktop (after `close`) lands in `~/Downloads`.
+
+## Gotchas
+
+- `eval` runs in the page's global scope: wrap in `(()=>{ ... })()` or a second
+  run fails with "Identifier already declared".
+- agent-desktop on huge pages fails with "RefMap exceeds 1MB": use
+  `--skeleton`, `--max-depth` or `--root @ref`.
+- `agent-desktop screenshot --app "Google Chrome"` is ambiguous (personal
+  Chrome too): pass `--window-id`.
+- ChatGPT: composer is the textbox "Ask ChatGPT"; `fill` then `press Enter`.
+  Image is done when `[data-testid=stop-button]` is gone and an
+  `img[alt^="Generated image"]` exists (~1–2 min).
+
 ## Rules
 
 - **Read by default.** Sending, posting, buying, deleting, or changing account
