@@ -82,6 +82,10 @@ input.
   for the password in chat, never type it, never screenshot the login form.
 - **Never read, print, copy or export cookies, tokens or `Login Data`**, and
   never copy the profile. No `state save`, no cookie export.
+- **X: never open `x.com`, `x.com/home` or any timeline.** Loading it marks
+  tweets as seen and Francisco loses them. Go straight to `x.com/i/bookmarks`
+  (now redirects to `/i/history`, tab "Guardados"), a profile, or a status URL.
+  To check the session, read the URL after opening bookmarks, never home.
 - Never touch the personal Chrome window (other pid).
 - Snapshots and screenshots can contain private mail/chats: don't paste them
   into commits, PRs or public places.
