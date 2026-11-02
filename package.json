@@ -1,0 +1,16 @@
+{
+  "name": "bot-browser",
+  "version": "0.1.0",
+  "description": "A real Chrome with its own permanent profile for your coding agents. Log in once by hand; Claude Code, Codex or any MCP client use those sessions.",
+  "type": "module",
+  "bin": { "bot-browser": "bin/bot-browser.js" },
+  "files": ["bin", "src", "skills", "README.md", "ROADMAP.md", "LICENSE"],
+  "engines": { "node": ">=20" },
+  "keywords": ["agent", "browser", "mcp", "claude-code", "codex", "chrome", "cdp", "agent-browser"],
+  "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/franciscobeccaria/bot-browser.git" },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "zod": "^3.25.0"
+  }
+}

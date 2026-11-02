@@ -1,51 +1,98 @@
 # bot-browser
 
-Un Chrome real con un perfil propio y permanente para tu agente, como el
-navegador de GrokBot: iniciás sesión a mano una vez (Google, Gmail, ChatGPT,
-X…) y el agente lo usa con esas sesiones, todas las veces que quiera, aunque
-reinicies Chrome o la Mac.
+A real Chrome with its own permanent profile for your coding agents.
 
-- **agent-browser** lo maneja por CDP (`127.0.0.1:9333`): leer, navegar, clickear.
-- **agent-desktop** maneja la misma ventana por accesibilidad de macOS: menús de
-  Chrome, diálogos nativos, permisos, sitios que no se llevan con CDP.
+You sign in by hand once — Google, Gmail, ChatGPT, X, whatever — and Claude
+Code, Codex or any MCP client can use those sessions from then on, across
+Chrome and computer restarts. It's the "the bot has its own browser with my
+logins" part of hosted agents like Grok Bot, running on your own machine with
+the subscriptions you already pay for.
 
-Es Chrome de verdad, lanzado sin flags de automatización (`navigator.webdriver`
-es `false`), con un `--user-data-dir` propio. Chrome no abre el puerto de debug
-sobre tu perfil personal, y está bien: el bot tiene el suyo.
+- **Real Chrome, no automation flags.** Not Chromium for Testing, no
+  `--enable-automation`; `navigator.webdriver` is `false`. Google lets you sign
+  in normally.
+- **Its own profile.** `~/.bot-browser/profile`, readable only by your user.
+  Your personal Chrome stays untouched.
+- **Two ways to drive the same window.** [agent-browser](https://github.com/vercel-labs/agent-browser)
+  over CDP (read, navigate, click, download) and
+  [agent-desktop](https://github.com/vercel-labs/agent-desktop) over OS
+  accessibility (Chrome menus, native dialogs, file pickers).
+- **You type the credentials.** The agent opens the login page and waits; it
+  never sees, stores or exports passwords or cookies.
+- **Works with any agent.** An MCP server for clients that speak MCP, and a
+  skill + CLI for agents that run shell commands.
 
-## Instalar
+## Install
+
+Requires macOS (Linux: CDP works, agent-desktop is untested), Google Chrome and
+Node 20+.
 
 ```bash
-npm i -g agent-browser agent-desktop
-agent-desktop permissions --guide          # Accesibilidad (y Screen Recording)
-ln -s "$PWD/bin/bot-browser" ~/.local/bin/bot-browser
-ln -s "$PWD/skills/bot-browser" ~/.claude/skills/bot-browser
+npx bot-browser setup      # installs agent-browser + agent-desktop, creates the profile,
+                           # guides the macOS Accessibility permission, installs the skill
+npx bot-browser login      # opens Google, ChatGPT and X: sign in by hand
 ```
 
-## Usar
+Connect it to your agent:
 
 ```bash
-bot-browser login        # abre Google, Gmail, ChatGPT y X: iniciá sesión vos
-bot-browser status
-agent-browser --session bot connect 9333 && agent-browser --session bot get title
+claude mcp add bot-browser -- npx -y bot-browser mcp
+codex mcp add bot-browser -- npx -y bot-browser mcp
 ```
 
-Después, al agente: "mirá mi Gmail con el navegador del bot".
+Then ask: *"check my unread Gmail with the bot browser"*, *"generate an image
+in ChatGPT and download it"*, *"read my X bookmarks"*.
 
-## Cuidado
+## MCP tools
 
-El perfil (`~/.bot-browser/profile`, 0700) tiene sesiones reales. Cualquier
-proceso local puede usar el puerto 9333 mientras está abierto. Nunca está en
-este repo; no lo copies ni lo subas.
+| Tool | What it does |
+| --- | --- |
+| `status`, `tabs` | Is it running, what's open |
+| `open`, `read`, `snapshot`, `screenshot` | Navigate and read pages |
+| `click`, `fill`, `press` | Act on the page |
+| `download` | Save a file to a path |
+| `request_login` | Open a login page for **you** to sign in; the agent waits |
+| `desktop_snapshot`, `desktop_click` | Operate the window through accessibility |
 
-## Próximos pasos (ideas)
+The server tells the model the rules: read by default, ask before sending or
+changing anything, never handle credentials.
 
-- **Producto local**: `npx bot-browser setup` que instala dependencias, crea el
-  perfil, guía permisos e instala la skill para Claude Code y Codex. Landing con
-  link de descarga. Opcional: `bot-browser mcp`, un servidor MCP local para
-  cualquier agente.
-- **Cloud**: VM con Chrome real y noVNC para hacer el login a mano, perfil en
-  disco persistente, y un MCP remoto (HTTP + OAuth) que se agrega como conector
-  en claude.ai o ChatGPT.
-- **Credenciales seguras**: una tarjeta que tipea la contraseña directo en el
-  sitio sin que pase por el modelo (como el login seguro de OpenBot).
+## CLI
+
+```text
+bot-browser setup | login [urls] | start [urls] | stop | restart | status | mcp | port | pid
+```
+
+Env: `BOT_BROWSER_HOME` (`~/.bot-browser`), `BOT_BROWSER_PORT` (`9333`),
+`BOT_BROWSER_CHROME`.
+
+`~/.bot-browser/config.json` can block URLs the agent must never open, e.g.
+your X home timeline (opening it marks posts as seen):
+
+```json
+{ "blockedUrls": ["^https?://(www\\.)?x\\.com/?(home)?(\\?.*)?$"] }
+```
+
+## Security
+
+The profile holds real, logged-in sessions (cookies encrypted by Chrome with a
+key in your OS keychain). While the bot's Chrome is open, any local process can
+drive it through `127.0.0.1:9333`, exactly like any Chrome with remote
+debugging. Stop it with `bot-browser stop` when you don't need it. Never copy
+or sync the profile.
+
+## Why not…
+
+- **Claude in Chrome / the ChatGPT extension:** they drive *your* Chrome, inside
+  their own app. bot-browser is a separate browser any terminal agent can share.
+- **agent-browser `--profile`:** it's the engine underneath. bot-browser adds a
+  real Chrome without automation flags, a fixed port several agents share,
+  agent-desktop on the same window, an MCP server and the safety rules.
+- **Cloud browsers (Browserbase, Kernel, Steel…):** great infra, but your
+  sessions live on someone else's servers and you pay per hour.
+
+See [ROADMAP.md](ROADMAP.md) for what's next (remote access, smoother logins).
+
+## License
+
+MIT
