@@ -1,0 +1,5 @@
+.DS_Store
+*.log
+profile/
+*.cookies*
+*.json.auth

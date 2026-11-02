@@ -1,0 +1,70 @@
+#!/bin/bash
+# bot-browser: un Chrome real con un perfil propio y permanente para tu agente.
+# Las sesiones (Google, ChatGPT, X...) las iniciás vos a mano una vez y quedan
+# guardadas en el perfil. El agente lo maneja por CDP (agent-browser) o por
+# accesibilidad (agent-desktop).
+set -euo pipefail
+
+HOME_DIR="${BOT_BROWSER_HOME:-$HOME/.bot-browser}"
+PROFILE="$HOME_DIR/profile"
+PORT="${BOT_BROWSER_PORT:-9333}"
+CHROME="${BOT_BROWSER_CHROME:-/Applications/Google Chrome.app/Contents/MacOS/Google Chrome}"
+LOG="$HOME_DIR/chrome.log"
+LOGIN_URLS=(https://accounts.google.com https://mail.google.com https://chatgpt.com https://x.com/login)
+
+alive() { curl -s --max-time 2 "http://127.0.0.1:$PORT/json/version" > /dev/null 2>&1; }
+pid() { pgrep -f -- "--user-data-dir=$PROFILE" | head -1 || true; }
+
+start() {
+  if alive; then echo "ya está corriendo (puerto $PORT, pid $(pid))"; return; fi
+  [ -x "$CHROME" ] || { echo "no encuentro Chrome en: $CHROME" >&2; exit 1; }
+  mkdir -p "$PROFILE"; chmod 700 "$HOME_DIR" "$PROFILE"
+  # Binario directo: `open -a ... --args` descarta los flags si Chrome ya corre.
+  nohup "$CHROME" \
+    --user-data-dir="$PROFILE" \
+    --remote-debugging-port="$PORT" \
+    --remote-debugging-address=127.0.0.1 \
+    --no-first-run --no-default-browser-check \
+    "$@" > "$LOG" 2>&1 &
+  for _ in $(seq 1 30); do alive && break; sleep 0.5; done
+  alive || { echo "Chrome arrancó pero el puerto $PORT no responde; ver $LOG" >&2; exit 1; }
+  echo "listo: puerto $PORT, pid $(pid), perfil $PROFILE"
+}
+
+stop() {
+  local p; p="$(pid)"
+  [ -z "$p" ] && { echo "no está corriendo"; return; }
+  kill "$p"
+  for _ in $(seq 1 20); do [ -z "$(pid)" ] && break; sleep 0.5; done
+  echo "cerrado"
+}
+
+status() {
+  if alive; then
+    echo "corriendo: puerto $PORT, pid $(pid)"
+    curl -s "http://127.0.0.1:$PORT/json/version" | python3 -c 'import sys,json;d=json.load(sys.stdin);print("browser:",d.get("Browser"))'
+    curl -s "http://127.0.0.1:$PORT/json/list" | python3 -c 'import sys,json
+for t in json.load(sys.stdin):
+    if t.get("type")=="page": print(" -", t.get("title","")[:60], "|", t.get("url","")[:80])'
+  else
+    echo "apagado (perfil: $PROFILE)"
+  fi
+}
+
+case "${1:-}" in
+  start) shift; start "$@" ;;
+  stop) stop ;;
+  restart) stop; start ;;
+  status) status ;;
+  login) shift; if [ $# -gt 0 ]; then start "$@"; else start "${LOGIN_URLS[@]}"; fi
+         echo "Iniciá sesión a mano en las pestañas que se abrieron. Quedan guardadas en el perfil." ;;
+  port) echo "$PORT" ;;
+  pid) pid ;;
+  *) cat <<USAGE
+uso: bot-browser <start|stop|restart|status|login [urls...]|port|pid>
+  agent-browser:  agent-browser --session bot connect \$(bot-browser port)
+  agent-desktop:  agent-desktop list-windows --app "Google Chrome"   (usá la ventana del pid de bot-browser)
+env: BOT_BROWSER_HOME (~/.bot-browser), BOT_BROWSER_PORT (9333), BOT_BROWSER_CHROME
+USAGE
+  ;;
+esac
