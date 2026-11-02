@@ -89,3 +89,12 @@ input.
 - Never touch the personal Chrome window (other pid).
 - Snapshots and screenshots can contain private mail/chats: don't paste them
   into commits, PRs or public places.
+
+## Keep this skill improving
+
+When you hit a trap that is not written here (a redirect, a selector that
+changed, a flag that behaves differently, a step that fails), fix the run and
+then add one line to **Gotchas** with the symptom and the fix, and commit it in
+this skill's repo with a short message. Do not rewrite sections, do not add
+anything you did not verify in the run, and never write private content
+(mail, chats, tweets, cookies) into the skill.
