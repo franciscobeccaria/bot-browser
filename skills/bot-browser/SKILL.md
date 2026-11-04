@@ -76,6 +76,12 @@ Run `agent-desktop skills get desktop` once per session. Headless by default;
   An image is done when `[data-testid=stop-button]` is gone and an
   `img[alt^="Generated image"]` exists (1–2 min). Download it from the image
   viewer's "Download" button.
+- ChatGPT attachments: `upload` to the *last* `input[type=file]` that is
+  `multiple` with no `accept` (the others belong to other widgets and silently
+  do nothing). The composer's "Remove <file>" buttons are hover-only: click them
+  with `eval` (`b.click()`). The "Power" slider in the model menu changes the
+  model under "Default"; pick the model in "Select model" first, then the
+  slider sets only effort. "Branch in new chat" is under the turn's "More actions".
 - X: `/i/bookmarks` redirects to `/i/history` (tabs "Guardados/Bookmarks" and
   "Likes"). Opening the home timeline marks tweets as seen for the user; go
   straight to bookmarks, profiles or status URLs.
