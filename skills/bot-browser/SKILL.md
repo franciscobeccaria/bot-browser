@@ -95,6 +95,8 @@ Run `agent-desktop skills get desktop` once per session. Headless by default;
   copy out.mp4`. No cookies needed.
 
 - Google Cloud console: many CDP clicks (ref or `mouse`) are silently ignored and `cfc-select` dropdowns won't open; `eval` with `element.click()` works (also on `[role=option]`), and prefer `gcloud` when a command exists. `download` of "Descargar JSON" failed with os error 35.
+- Search Console: `fill` in the "Inspeccionar cualquier URL" box never submits and the onboarding popups cover inputs; click the box, `keyboard type` the URL, `press Enter`. On a domain property (`sc-domain:`) the sitemap field needs the full URL (`https://site/sitemap.xml`), a bare `sitemap.xml` gives "Dirección de sitemap no válida".
+- TinyLaunch: "Schedule Free Launch" opens a full-screen "Last chance to upgrade" modal; the launch is only saved after clicking "Continue with free launch" there (Close discards it). Date cards often ignore the first CDP click; `element.click()` via `eval` works.
 
 ## Rules
 
