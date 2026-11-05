@@ -82,6 +82,10 @@ Run `agent-desktop skills get desktop` once per session. Headless by default;
   with `eval` (`b.click()`). The "Power" slider in the model menu changes the
   model under "Default"; pick the model in "Select model" first, then the
   slider sets only effort. "Branch in new chat" is under the turn's "More actions".
+- ChatGPT history: the sidebar only renders ~13 recent chats and scrolling does not load more;
+  use global search (magnifier at the top of the open sidebar, then type) and read
+  `main.innerText` of each chat (`[data-message-author-role]` is empty). Long chats
+  load older turns lazily: scroll the main scroller to top until the length stops growing.
 - X: `/i/bookmarks` redirects to `/i/history` (tabs "Guardados/Bookmarks" and
   "Likes"). Opening the home timeline marks tweets as seen for the user; go
   straight to bookmarks, profiles or status URLs.
@@ -89,6 +93,8 @@ Run `agent-desktop skills get desktop` once per session. Headless by default;
   (`agent-browser network requests --filter video.twimg.com`); match it to the
   main tweet by the video id in the `<video>` poster and `ffmpeg -i <m3u8> -c
   copy out.mp4`. No cookies needed.
+
+- Google Cloud console: many CDP clicks (ref or `mouse`) are silently ignored and `cfc-select` dropdowns won't open; `eval` with `element.click()` works (also on `[role=option]`), and prefer `gcloud` when a command exists. `download` of "Descargar JSON" failed with os error 35.
 
 ## Rules
 
