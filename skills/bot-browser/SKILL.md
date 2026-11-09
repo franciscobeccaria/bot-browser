@@ -76,6 +76,7 @@ Run `agent-desktop skills get desktop` once per session. Headless by default;
   An image is done when `[data-testid=stop-button]` is gone and an
   `img[alt^="Generated image"]` exists (1–2 min). Download it from the image
   viewer's "Download" button.
+- ChatGPT: in a fresh chat `press Enter` sometimes does not send; click the send button with `eval` (`element.click()`). Two agents sharing `--session bot` end up typing into each other's tab: give each job its own session name (`--session <job>`) on the same port 9333.
 - ChatGPT attachments: `upload` to the *last* `input[type=file]` that is
   `multiple` with no `accept` (the others belong to other widgets and silently
   do nothing). The composer's "Remove <file>" buttons are hover-only: click them
