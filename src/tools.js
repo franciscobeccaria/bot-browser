@@ -2,8 +2,8 @@
 // both pointed at the bot's own Chrome.
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { PORT, SESSION } from "./config.js";
-import { start, pid } from "./chrome.js";
+import { PORT, SESSION, VISIBLE } from "./config.js";
+import { start, pid, hide, frontPid } from "./chrome.js";
 
 const run = promisify(execFile);
 
@@ -16,8 +16,11 @@ export async function ab(args, { timeout = 60000 } = {}) {
 let connected = false;
 export async function ensureConnected() {
   if (connected) return;
-  await start();
+  const before = frontPid();
+  const { started } = await start();
   await run("agent-browser", ["--session", SESSION, "connect", String(PORT)], { timeout: 30000 });
+  // Connecting can bring a freshly launched Chrome back on screen: hide it again.
+  if (started && !VISIBLE) hide(before);
   connected = true;
 }
 

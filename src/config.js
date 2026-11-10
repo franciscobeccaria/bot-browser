@@ -7,6 +7,8 @@ export const PROFILE = join(HOME, "profile");
 export const PORT = Number(process.env.BOT_BROWSER_PORT || 9333);
 export const SESSION = process.env.BOT_BROWSER_SESSION || "bot";
 export const LOG = join(HOME, "chrome.log");
+// Set BOT_BROWSER_VISIBLE=1 to keep the window on screen instead of hidden.
+export const VISIBLE = /^(1|true|yes)$/i.test(process.env.BOT_BROWSER_VISIBLE || "");
 export const CONFIG_FILE = join(HOME, "config.json");
 
 const CHROME_CANDIDATES = {

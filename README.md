@@ -17,6 +17,10 @@ the subscriptions you already pay for.
   over CDP (read, navigate, click, download) and
   [agent-desktop](https://github.com/vercel-labs/agent-desktop) over OS
   accessibility (Chrome menus, native dialogs, file pickers).
+- **It stays out of your way.** On macOS the window starts hidden and gives focus
+  back to the app you were using, so it never lands on top of what you're typing.
+  It only comes to the front for logins or when you run `bot-browser show`
+  (`BOT_BROWSER_VISIBLE=1` turns this off).
 - **You type the credentials.** The agent opens the login page and waits; it
   never sees, stores or exports passwords or cookies.
 - **Works with any agent.** An MCP server for clients that speak MCP, and a
@@ -52,6 +56,7 @@ in ChatGPT and download it"*, *"read my X bookmarks"*.
 | `click`, `fill`, `press` | Act on the page |
 | `download` | Save a file to a path |
 | `request_login` | Open a login page for **you** to sign in; the agent waits |
+| `show`, `hide` | Bring the window to the front / hide it again |
 | `desktop_snapshot`, `desktop_click` | Operate the window through accessibility |
 
 The server tells the model the rules: read by default, ask before sending or
@@ -60,7 +65,7 @@ changing anything, never handle credentials.
 ## CLI
 
 ```text
-bot-browser setup | login [urls] | start [urls] | stop | restart | status | mcp | port | pid
+bot-browser setup | login [urls] | start [urls] | show | hide | stop | restart | status | mcp | port | pid
 ```
 
 Env: `BOT_BROWSER_HOME` (`~/.bot-browser`), `BOT_BROWSER_PORT` (`9333`),

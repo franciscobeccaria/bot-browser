@@ -7,7 +7,7 @@ import { readFileSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { PORT, PROFILE, blockedReason } from "./config.js";
-import { alive, pid, start, tabs, newTab, version } from "./chrome.js";
+import { alive, pid, start, tabs, newTab, version, show, hide } from "./chrome.js";
 import { ab, ad, release, botWindows } from "./tools.js";
 
 const text = (t) => ({ content: [{ type: "text", text: typeof t === "string" ? t : JSON.stringify(t, null, 2) }] });
@@ -77,9 +77,15 @@ export async function serve() {
     { url: z.string().url(), reason: z.string() }, async ({ url, reason }) => {
       await start();
       await newTab(url);
-      try { const [w] = await botWindows(); if (w) await ad(["focus-window", "--window-id", w.id]); } catch {}
-      return text(`Opened ${url} in the bot's Chrome. Tell the user: "${reason}. Please sign in in the bot's Chrome window and tell me when you're done." Do not continue until they confirm.`);
+      show();
+      return text(`Opened ${url} in the bot's Chrome and brought it to the front. Tell the user: "${reason}. Please sign in in the bot's Chrome window and tell me when you're done." Do not continue until they confirm, then call hide.`);
     });
+
+  tool("show", "Bring the bot's Chrome to the front, only when the user asks to see it. It runs hidden by default so it never takes the user's focus.",
+    {}, async () => { await start(); return text(show() ? "shown" : "could not show the window"); });
+
+  tool("hide", "Hide the bot's Chrome again (after a login or a show) and give focus back to the user's app. Everything keeps working while hidden.",
+    {}, async () => text(hide() ? "hidden" : "could not hide the window"));
 
   tool("desktop_snapshot",
     "Snapshot the bot's Chrome window through OS accessibility (agent-desktop): Chrome menus, native dialogs, permission prompts, file pickers.",

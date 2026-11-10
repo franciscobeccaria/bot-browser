@@ -22,6 +22,7 @@ If the `bot-browser` MCP server is connected, prefer its tools (`open`,
 bot-browser status            # running? open tabs
 bot-browser start [urls...]   # starts if needed (idempotent)
 bot-browser login [urls...]   # opens login pages for the USER to sign in by hand
+bot-browser show | hide        # bring the window to the front / hide it again
 bot-browser stop | restart
 ```
 
@@ -110,6 +111,12 @@ Run `agent-desktop skills get desktop` once per session. Headless by default;
 - **Never read, print, copy or export cookies, tokens or saved passwords**, and
   never copy the profile. No `state save`, no cookie export.
 - Never touch the user's personal Chrome window (other pid).
+- **It runs hidden on macOS** so it never steals the user's focus while they
+  type. Everything keeps working hidden (open, click, read, screenshot). Only
+  `login` / `request_login` / `show` bring it to the front; call `hide` (or
+  `bot-browser hide`) once the user is done. Opening a NEW tab un-hides
+  Chrome, so navigate the current tab (`open`) instead of creating tabs.
+  agent-desktop only lists visible windows: `show` before using it.
 - Snapshots and screenshots can contain private mail and chats: keep them out
   of commits, PRs and public places.
 
